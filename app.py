@@ -1,6 +1,14 @@
 import streamlit as st
 import pandas as pd
 import numpy as np
+import joblib
+@st.cache_resource
+def load_model():
+    model = joblib.load('car_price_model.pkl')
+    encoder = joblib.load('encoder.pkl')
+    return model, encoder
+
+model, encoder = load_model()
 
 # -----------------------------
 #  Titre et description générale
@@ -63,8 +71,8 @@ st.markdown("---")
 st.subheader("Estimation du prix en MAD")
 
 if st.button("Estimer le prix"):
-    # DataFrame pour une future intégration avec un vrai modèle ML
-    input_data = pd.DataFrame({
+      # Préparer les données comme dans le notebook
+    input_df = pd.DataFrame({
         'year': [year],
         'km_driven': [km_driven],
         'fuel': [fuel],
@@ -73,70 +81,36 @@ if st.button("Estimer le prix"):
         'owner': [owner]
     })
 
-    # -------- Modèle simplifié "à la main" --------
-    # Base : voiture moyenne autour de 120 000 MAD
-    base_price = 120_000
+    # Séparer numériques et catégorielles
+    X_num_new = input_df[['year', 'km_driven']]
+    X_cat_new = input_df[['fuel', 'transmission', 'seller_type', 'owner']]
 
-    price = base_price
+    # Encoder les catégorielles avec le même encodeur qu'en entraînement
+    X_cat_encoded_new = encoder.transform(X_cat_new)
 
-    # Effet de l'âge : plus la voiture est ancienne, plus le prix baisse
-    current_year = 2025
-    age = current_year - year
-    price -= age * 7_000  # -7 000 MAD par année d'ancienneté (à ajuster)
+    # Concaténer
+    X_new = np.hstack([X_num_new.values, X_cat_encoded_new])
 
-    # Effet du kilométrage : plus de km => prix plus bas
-    # Réduction d'environ 0,3 MAD par km
-    price -= km_driven * 0.3
+    # Prédiction du prix (unité = même que dans ton dataset, INR si CarDekho)
+    predicted_price_inr = model.predict(X_new)[0]
 
-    # Effet du carburant
-    if fuel == "Diesel":
-        price += 15_000   # diesel encore très répandu au Maroc
-    elif fuel == "Hybride":
-        price += 25_000
-    elif fuel == "Électrique":
-        price += 35_000
-    elif fuel == "GPL":
-        price -= 5_000    # peut faire baisser un peu la valeur perçue
-    # Essence : pas de modification
+    # Conversion simple INR -> MAD (à ajuster si tu veux)
+    predicted_price_mad = predicted_price_inr / 1.4
+    predicted_price_mad = max(predicted_price_mad, 5000)  # éviter < 0
+    predicted_price_mad = int(round(predicted_price_mad, -2))  # arrondi à la centaine
 
-    # Effet de la boîte de vitesses
-    if transmission == "Automatique":
-        price += 12_000   # voitures auto souvent plus chères
+    st.success(f"💰 Prix estimé : **{predicted_price_mad:,.0f} MAD**".replace(",", " "))
 
-    # Effet du type de vendeur
-    if seller_type == "Professionnel (garage, concession)":
-        price += 5_000    # garantie, préparation, etc.
-    # Particulier / Autre : pas de modification
-
-    # Effet du nombre de propriétaires
-    if owner == "Deuxième propriétaire":
-        price -= 8_000
-    elif owner == "Troisième propriétaire ou plus":
-        price -= 15_000
-
-    # Éviter un prix trop bas ou négatif
-    price = max(price, 10_000)
-
-    # Arrondir
-    price = int(round(price, -2))  # arrondi à la centaine
-
-    # Affichage du résultat
-    st.success(f"💰 Prix estimé : **{price:,.0f} MAD**".replace(",", " "))
-
-    # Intervalle de confiance grossier (+/- 15 %)
-    low = int(price * 0.85)
-    high = int(price * 1.15)
+    low = int(predicted_price_mad * 0.9)
+    high = int(predicted_price_mad * 1.1)
     st.write(
-        f"Fourchette indicative : entre **{low:,.0f} MAD** et **{high:,.0f} MAD** "
-        f"(en fonction de l’état, de la région, des options, etc.).".replace(",", " ")
+        f"Fourchette indicative : entre **{low:,.0f} MAD** et **{high:,.0f} MAD**."
+        .replace(",", " ")
     )
 
     st.info(
-        """
-⚠️ Cette estimation est basée sur un modèle simplifié, uniquement à des fins pédagogiques.
-Pour un prix plus précis, il faut tenir compte de la marque, du modèle, de la finition,
-de l’état réel du véhicule et des prix du marché local (sites d’annonces marocains, garages, experts)."""
+        "Estimation basée sur un modèle de régression entraîné sur des données de voitures d’occasion. "
+        "Les prix réels peuvent varier selon la marque, le modèle, l’état et la région."
     )
-
 else:
     st.write("Cliquez sur le bouton ci‑dessus après avoir renseigné toutes les informations.")
