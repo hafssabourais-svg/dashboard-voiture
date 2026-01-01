@@ -17,7 +17,7 @@ model, encoder = load_model()
 # -----------------------------
 #  Titre et description générale
 # -----------------------------
-st.title("🚗 Estimez le prix de votre voiture d’occasion au Maroc")
+st.title("🚗 Estimation du prix de voitures au Maroc – v2")
 
 st.write(
     """
