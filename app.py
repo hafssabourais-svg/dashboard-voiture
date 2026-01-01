@@ -1,3 +1,11 @@
+Le problème vient uniquement de la partie qui charge un fichier CSV qui n’existe pas sur le serveur. Voici un **code complet**, déjà corrigé, que tu peux coller tel quel dans `app.py` à la place de l’ancien.
+
+Ce code :
+
+- garde **tout** ton module de prédiction,  
+- ajoute un **petit tableau de bord avec statistiques et graphiques** en utilisant des données d’exemple (pas besoin de CSV, donc plus d’erreur).
+
+```python
 import streamlit as st
 import pandas as pd
 import numpy as np
@@ -13,16 +21,6 @@ def load_model():
     return model, encoder
 
 model, encoder = load_model()
-
-# -----------------------------
-#  >>> AJOUT DASHBOARD : chargement des données
-# -----------------------------
-@st.cache_data
-def load_data():
-    # ajuste le chemin / nom de fichier à ton projet
-    return pd.read_csv("data/voitures.csv")
-
-df = load_data()
 
 # -----------------------------
 #  Titre et description générale
@@ -42,27 +40,36 @@ Il ne remplace pas une expertise professionnelle, mais donne un ordre de grandeu
 st.markdown("---")
 
 # -----------------------------
-#  >>> AJOUT DASHBOARD : Analyse des données
+#  Dashboard : statistiques + graphiques (données d'exemple)
 # -----------------------------
-st.header("Vue d’ensemble des données")
+st.header("Vue d’ensemble des données (exemple illustratif)")
+
+# Données simulées uniquement pour illustrer le tableau de bord
+data_demo = {
+    "year": [2010, 2012, 2015, 2018, 2020, 2022],
+    "km_driven": [180000, 150000, 120000, 90000, 60000, 30000],
+    "selling_price": [60000, 75000, 90000, 120000, 150000, 180000],
+    "fuel": ["Diesel", "Essence", "Diesel", "Essence", "Hybride", "Essence"],
+}
+df = pd.DataFrame(data_demo)
 
 col1, col2, col3, col4 = st.columns(4)
 with col1:
-    st.metric("Nombre de voitures", len(df))
+    st.metric("Nombre de voitures (exemple)", len(df))
 with col2:
     st.metric("Année min", int(df["year"].min()))
 with col3:
     st.metric("Année max", int(df["year"].max()))
 with col4:
-    st.metric("Prix moyen (unité d’origine)", round(df["selling_price"].mean(), 2))
+    st.metric("Prix moyen (exemple)", round(df["selling_price"].mean(), 2))
 
-st.subheader("Aperçu du jeu de données")
-st.dataframe(df.head())
+st.subheader("Aperçu (exemple de données)")
+st.dataframe(df)
 
-st.subheader("Distribution du kilométrage")
+st.subheader("Distribution du kilométrage (exemple)")
 st.bar_chart(df["km_driven"])
 
-st.subheader("Nombre de voitures par type de carburant")
+st.subheader("Nombre de voitures par type de carburant (exemple)")
 fuel_counts = df["fuel"].value_counts()
 st.bar_chart(fuel_counts)
 
@@ -155,4 +162,3 @@ if st.button("Estimer le prix"):
     )
 else:
     st.write("Cliquez sur le bouton ci‑dessus après avoir renseigné toutes les informations.")
-
