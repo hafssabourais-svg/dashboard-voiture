@@ -34,7 +34,7 @@ st.markdown("---")
 # -----------------------------
 #  Dashboard : statistiques + graphiques (données d'exemple)
 # -----------------------------
-st.header("Vue d’ensemble des données (exemple illustratif)")
+st.header("Vue d’ensemble des données :")
 
 # Données simulées uniquement pour illustrer le tableau de bord
 data_demo = {
