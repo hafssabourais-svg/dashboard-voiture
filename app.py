@@ -47,21 +47,21 @@ df = pd.DataFrame(data_demo)
 
 col1, col2, col3, col4 = st.columns(4)
 with col1:
-    st.metric("Nombre de voitures (exemple)", len(df))
+    st.metric("Nombre de voitures", len(df))
 with col2:
     st.metric("Année min", int(df["year"].min()))
 with col3:
     st.metric("Année max", int(df["year"].max()))
 with col4:
-    st.metric("Prix moyen (exemple)", round(df["selling_price"].mean(), 2))
+    st.metric("Prix moyen", round(df["selling_price"].mean(), 2))
 
-st.subheader("Aperçu (exemple de données)")
+st.subheader("Aperçu")
 st.dataframe(df)
 
-st.subheader("Distribution du kilométrage (exemple)")
+st.subheader("Distribution du kilométrage")
 st.bar_chart(df["km_driven"])
 
-st.subheader("Nombre de voitures par type de carburant (exemple)")
+st.subheader("Nombre de voitures par type de carburant")
 fuel_counts = df["fuel"].value_counts()
 st.bar_chart(fuel_counts)
 
