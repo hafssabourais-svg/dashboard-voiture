@@ -1,11 +1,3 @@
-Le problème vient uniquement de la partie qui charge un fichier CSV qui n’existe pas sur le serveur. Voici un **code complet**, déjà corrigé, que tu peux coller tel quel dans `app.py` à la place de l’ancien.
-
-Ce code :
-
-- garde **tout** ton module de prédiction,  
-- ajoute un **petit tableau de bord avec statistiques et graphiques** en utilisant des données d’exemple (pas besoin de CSV, donc plus d’erreur).
-
-```python
 import streamlit as st
 import pandas as pd
 import numpy as np
