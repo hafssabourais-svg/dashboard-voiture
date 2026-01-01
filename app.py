@@ -32,11 +32,11 @@ Il ne remplace pas une expertise professionnelle, mais donne un ordre de grandeu
 st.markdown("---")
 
 # -----------------------------
-#  Dashboard : statistiques + graphiques (données d'exemple)
+#  Dashboard : statistiques + graphiques
 # -----------------------------
-st.header("Vue d’ensemble des données :")
+st.header("Vue d’ensemble des données")
 
-# Données simulées uniquement pour illustrer le tableau de bord
+# Données simulées pour alimenter le tableau de bord
 data_demo = {
     "year": [2010, 2012, 2015, 2018, 2020, 2022],
     "km_driven": [180000, 150000, 120000, 90000, 60000, 30000],
@@ -55,7 +55,7 @@ with col3:
 with col4:
     st.metric("Prix moyen", round(df["selling_price"].mean(), 2))
 
-st.subheader("Aperçu")
+st.subheader("Aperçu des données")
 st.dataframe(df)
 
 st.subheader("Distribution du kilométrage")
@@ -154,4 +154,3 @@ if st.button("Estimer le prix"):
     )
 else:
     st.write("Cliquez sur le bouton ci‑dessus après avoir renseigné toutes les informations.")
-
