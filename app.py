@@ -2,6 +2,10 @@ import streamlit as st
 import pandas as pd
 import numpy as np
 import joblib
+
+# -----------------------------
+#  Chargement du modèle et de l'encodeur
+# -----------------------------
 @st.cache_resource
 def load_model():
     model = joblib.load('car_price_model.pkl')
@@ -9,6 +13,16 @@ def load_model():
     return model, encoder
 
 model, encoder = load_model()
+
+# -----------------------------
+#  >>> AJOUT DASHBOARD : chargement des données
+# -----------------------------
+@st.cache_data
+def load_data():
+    # ajuste le chemin / nom de fichier à ton projet
+    return pd.read_csv("data/voitures.csv")
+
+df = load_data()
 
 # -----------------------------
 #  Titre et description générale
@@ -24,6 +38,33 @@ Il ne remplace pas une expertise professionnelle, mais donne un ordre de grandeu
 à partir de quelques caractéristiques simples du véhicule.
 """
 )
+
+st.markdown("---")
+
+# -----------------------------
+#  >>> AJOUT DASHBOARD : Analyse des données
+# -----------------------------
+st.header("Vue d’ensemble des données")
+
+col1, col2, col3, col4 = st.columns(4)
+with col1:
+    st.metric("Nombre de voitures", len(df))
+with col2:
+    st.metric("Année min", int(df["year"].min()))
+with col3:
+    st.metric("Année max", int(df["year"].max()))
+with col4:
+    st.metric("Prix moyen (unité d’origine)", round(df["selling_price"].mean(), 2))
+
+st.subheader("Aperçu du jeu de données")
+st.dataframe(df.head())
+
+st.subheader("Distribution du kilométrage")
+st.bar_chart(df["km_driven"])
+
+st.subheader("Nombre de voitures par type de carburant")
+fuel_counts = df["fuel"].value_counts()
+st.bar_chart(fuel_counts)
 
 st.markdown("---")
 
@@ -71,7 +112,7 @@ st.markdown("---")
 st.subheader("Estimation du prix en MAD")
 
 if st.button("Estimer le prix"):
-      # Préparer les données comme dans le notebook
+    # Préparer les données comme dans le notebook
     input_df = pd.DataFrame({
         'year': [year],
         'km_driven': [km_driven],
@@ -114,3 +155,4 @@ if st.button("Estimer le prix"):
     )
 else:
     st.write("Cliquez sur le bouton ci‑dessus après avoir renseigné toutes les informations.")
+
